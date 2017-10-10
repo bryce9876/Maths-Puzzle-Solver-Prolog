@@ -2,23 +2,22 @@
 :- ensure_loaded(library(clpfd)).
 
 /* Make sure diagonals are all the same*/
-diagonals_check([_,[_,D,_,_],[_,_,D,_],[_,_,_,D]]).
+diagonals_check([[D,_,_],[_,D,_],[_,_,D]]).
 
-testcheck([[0,14,10,35],[14,1,1,1],[15,1,1,1],[28,1,1,_]]).
+
 
 puzzle_solution(Puzzle) :- 
-	append(Puzzle, Vs), Vs ins 0..40,
-	maplist(all_distinct, Puzzle).
-
+	%% Check diagonal
+	strip_row1_col1(Puzzle, Inner),
+	append(Inner, InDom), InDom ins 1..9,
+	diagonals_check(Inner).
 
 
 /*
 puzzle_solution(Puzzle) :- 
-    append(Puzzle, Dom), Dom ins 1..100,
-	diagonals_check(Puzzle),
-	test_all_lines_outer(Puzzle),	
-	transpose(Puzzle, Transposed),
-	test_all_lines_outer(Transposed).
+    	strip_row1_col1(Puzzle, Inner),
+	append(Inner, InDom), InDom ins 1..9,
+	diagonals_check(Inner),
 */
 
 
@@ -29,16 +28,34 @@ test_all_lines_outer([_|Rest]) :- test_all_lines(Rest).
 test_all_lines([]).
 test_all_lines([R1|Rest]) :- test_a_line(R1), test_all_lines(Rest).
 
-test_a_line([A|Res]) :- sumlist(Res, A). 
-test_a_line([A|Res]) :- multiplylist(Res, A).
+
+%% test_a_line([A|Res]) :- sumlist(Res, A). 
+test_a_line([A|Res]) :-
+    multiplylist(Res, Sum),
+    Sum #= A.
 
 
-
+%% Multiply every value in a list
 multiplylist(List, Sum) :-
-	multiplylist(List, 1, Sum).
+	multiplylistinner(List, 1, Sum).
 
-multiplylist([], Sum, Sum).
-multiplylist([N|Ns], Sum0, Sum) :-
-	Sum1 is Sum0 * N,
-	multiplylist(Ns, Sum1, Sum).
+%% TODO: throw error if a value isnt a num
+multiplylistinner([], Sum, Sum).
+multiplylistinner([N|Ns], Sum0, Sum) :-
+	Sum1 #= Sum0 * N,
+	multiplylistinner(Ns, Sum1, Sum).
+
+
+
+%% Strip the first row and column from a list of lists
+strip_row1_col1([_|Res], Soln) :-
+    transpose(Res, Transposed),
+	removeFirstElem(Transposed , TransposedStripped),
+	transpose(TransposedStripped, Soln).
+
+
+
+%% Remove the first element form a list
+removeFirstElem([_|T] , Soln) :- append(T, [], Soln).
+	
 
