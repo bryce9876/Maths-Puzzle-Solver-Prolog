@@ -16,6 +16,9 @@ puzzle_solution(Puzzle) :-
 	get_col_1_res(Puzzle, RowResult), 
     checkRows(Inner, RowResult),
 
+    get_row_1_res(Puzzle, ColResult), 
+    checkCols(Inner, ColResult),
+
 
 
 	transpose(Inner, Trans),
