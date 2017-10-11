@@ -1,17 +1,16 @@
-
 :- ensure_loaded(library(clpfd)).
-
-/* Make sure diagonals are all the same*/
-diagonals_check([[D,_,_],[_,D,_],[_,_,D]]).
-
 
 
 puzzle_solution(Puzzle) :- 
-	%% Check diagonal
+	
 	strip_row1_col1(Puzzle, Inner),
 	append(Inner, InDom), InDom ins 1..9,
+
 	diagonals_check(Inner),
+
 	maplist(all_distinct, Inner),
+	transpose(Inner, Trans),
+	maplist(all_distinct, Trans),
 
 	get_col_1_res(Puzzle, RowResult), 
     checkRows(Inner, RowResult),
@@ -19,11 +18,15 @@ puzzle_solution(Puzzle) :-
     get_row_1_res(Puzzle, ColResult), 
     checkCols(Inner, ColResult),
 
+    maplist(label, Inner). 
 
 
-	transpose(Inner, Trans),
-	maplist(all_distinct, Trans).
+%% test(puzzle_solution([[0,11,9,162],[14,_,_,_],[18,_,_,_],[84,_,_,_]]),[puzzle_solution([[0,11,9,162],[14,3,2,9],[18,1,3,6],[84,7,4,3]])],20,1).
 
+
+%% Make sure diagonals are all the same*/
+%% Paramater 1: 2D list of grid(not including row/col headers), length=3
+diagonals_check([[D,_,_],[_,D,_],[_,_,D]]).
 
 
 
@@ -33,7 +36,7 @@ puzzle_solution(Puzzle) :-
 checkRows([], []).
 
 checkRows([H1|T1], [H2|T2]) :-
-    test_a_line2(H2, H1),
+    test_a_line(H1, H2),
     checkRows(T1, T2).
 
 
@@ -55,59 +58,14 @@ get_col_1_res(Arr, Soln) :-
 
 
 
-test_a_line2(Result, List) :-
-    multiplylist(List, Product),
-    Product #= Result.
-
-test_a_line2(Result, List) :-
+test_a_line(List, Result) :-
 	sumlist(List, Sum),
 	Sum #= Result.
 
+test_a_line(List, Result) :-
+    multiplylist(List, Product),
+    Product #= Result.
 
-test_a_line3(Result, List) :- sum(List, #=, Result).
-
-
-	%%get_col_1([_|T]) :-
-
-	/*
-	alldistinct
-	r1Check
-	r2Check
-	r3Check.
-	*/
-
-
-/*
-r1Check([H|T], [H|_]) :-
-test_a_line([H|Res]) :-
-    multiplylist(Res, Sum),
-    Sum #= A.
-*/
-
-%%append(Puzzle, PuzDom), PuzDom ins 0..100,
-%%test_all_lines_outer(Puzzle).
-
-
-/*
-puzzle_solution(Puzzle) :- 
-    	strip_row1_col1(Puzzle, Inner),
-	append(Inner, InDom), InDom ins 1..9,
-	diagonals_check(Inner),
-*/
-
-
-/* test_row(Row) :- test_sum(Row), test_multiple(Row).
-*/
-test_all_lines_outer([_|Rest]) :- test_all_lines(Rest).
-
-test_all_lines([]).
-test_all_lines([R1|Rest]) :- test_a_line(R1), test_all_lines(Rest).
-
-
-%% test_a_line([A|Res]) :- sumlist(Res, A). 
-test_a_line([A|Res]) :-
-    multiplylist(Res, Sum),
-    Sum #= A.
 
 
 %% Multiply every value in a list
