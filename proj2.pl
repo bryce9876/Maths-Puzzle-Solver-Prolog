@@ -21,12 +21,27 @@ puzzle_solution(Puzzle) :-
     maplist(label, Inner). 
 
 
-%% test(puzzle_solution([[0,11,9,162],[14,_,_,_],[18,_,_,_],[84,_,_,_]]),[puzzle_solution([[0,11,9,162],[14,3,2,9],[18,1,3,6],[84,7,4,3]])],20,1).
+
+
+/*-------------- Methods for checking puzzle conditions ----------------*/
+/*  So checking correct sum/products in rows/columns, correct diagonals etc.
+
 
 
 %% Make sure diagonals are all the same*/
-%% Paramater 1: 2D list of grid(not including row/col headers), length=3
-diagonals_check([[D,_,_],[_,D,_],[_,_,D]]).
+%% Paramater 1: 2D list of grid(not including row/col headers)
+diagonals_check(List) :-
+    getHead(List, [H|_]),
+    diagonals_check_inner(H, List, 0).
+
+diagonals_check_inner(_, [], _).
+
+diagonals_check_inner(Tar, List, Index) :-
+	getHead(List, H),
+    nth0(Index, H, Tar),
+    getTail(List, Tail),
+    NewIndex #= Index+1,
+    diagonals_check_inner(Tar, Tail, NewIndex).
 
 
 
@@ -68,32 +83,11 @@ test_a_line(List, Result) :-
 
 
 
-%% Multiply every value in a list
-multiplylist(List, Sum) :-
-	multiplylistinner(List, 1, Sum).
-
-%% TODO: throw error if a value isnt a num
-multiplylistinner([], Sum, Sum).
-multiplylistinner([N|Ns], Sum0, Sum) :-
-	Sum1 #= Sum0 * N,
-	multiplylistinner(Ns, Sum1, Sum).
 
 
+/*-------------- Methods for list calculations and mannipulation ----------*/
 
 
-%% TODO: Can probably refacor this
-%% Multiply every value in a list
-sumlist(List, Sum) :-
-	sumlistinner(List, 0, Sum).
-
-%% TODO: throw error if a value isnt a num
-sumlistinner([], Sum, Sum).
-sumlistinner([N|Ns], Sum0, Sum) :-
-	Sum1 #= Sum0 + N,
-	sumlistinner(Ns, Sum1, Sum).
-
-
-/*-------------- Methods for stripping elements from the list -------*/
 
 %% Strip the first row and column from a list of lists
 strip_row1_col1([_|Res], Soln) :-
@@ -103,7 +97,44 @@ strip_row1_col1([_|Res], Soln) :-
 
 
 
+%% Get the head of a list
+getHead([H|_], H). 
+
+
+
+%% Get the tail of a list
+getTail([_|T], T). 
+
+
+
 %% Remove the first element form a list
 removeFirstElem([_|T] , Soln) :- append(T, [], Soln).
-	
+
+
+
+%% Multiply every value in a list
+%% Paramater 1: A list of numbers
+%% Paramater 2: The result of every value in the list being multiplied 
+%%              together
+multiplylist(List, Sum) :-
+	multiplylistinner(List, 1, Sum).
+
+multiplylistinner([], Sum, Sum).
+multiplylistinner([N|Ns], Sum0, Sum) :-
+	Sum1 #= Sum0 * N,
+	multiplylistinner(Ns, Sum1, Sum).
+
+
+
+%% Sum every value in a list
+%% Paramater 1: A list of numbers
+%% Paramater 2: The total sum of every value in the list
+sumlist(List, Sum) :-
+	sumlistinner(List, 0, Sum).
+
+sumlistinner([], Sum, Sum).
+sumlistinner([N|Ns], Sum0, Sum) :-
+	Sum1 #= Sum0 + N,
+	sumlistinner(Ns, Sum1, Sum).
+
 
